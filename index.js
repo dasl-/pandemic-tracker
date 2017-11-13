@@ -140,7 +140,7 @@
 
         updateUi: function() {
             this.$infection_input.val("");
-            this.$infection_bottom_input.val("")
+            this.$infection_bottom_input.val("");
 
             this.$player_deck_ui.text(this.player_deck_pile_sizes.toString());
 
