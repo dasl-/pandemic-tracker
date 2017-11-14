@@ -2,19 +2,37 @@
     var PandemicPage = {
 
         // TODO: fill these in
-        num_remaining_player_cards: 50, // number before adding epidemic cards to the piles
+        num_remaining_player_cards: 38, // number before adding epidemic cards to the piles
         infection_rate_index: 0,
         infection_rate_track: [2,2,2,3,3,4,4,5],
         infection_draw_unknown: [
-            "one",
-            "two",
-            "three",
-            "four",
-            "five",
-            "six",
-            "seven",
-            "eight",
-            //... 27 of these to begin with...
+            "istanbul",
+            "istanbul",
+            "istanbul",
+            "cairo",
+            "cairo",
+            "cairo",
+            "tripoli",
+            "tripoli",
+            "tripoli",
+            "sao paulo",
+            "sao paulo",
+            "sao paulo",
+            "jacksonville",
+            "jacksonville",
+            "jacksonville",
+            "lagos",
+            "lagos",
+            "lagos",
+            "london",
+            "london",
+            "london",
+            "washington",
+            "washington",
+            "washington",
+            "new york",
+            "new york",
+            "new york",
         ],
 
 
@@ -29,11 +47,14 @@
         $infection_button: null,
         $infection_bottom_input: null,
         $infection_bottom_button: null,
+        $infection_discard_remove_input: null,
+        $infection_discard_remove_button: null,
 
         $player_deck_ui: null,
         $infection_draw_known_ui: null,
         $infection_draw_unknown_ui: null,
         $infection_discard_ui: null,
+
 
         init: function() {
             this.$epidemic_button = $('button#epidemic-button');
@@ -42,6 +63,8 @@
             this.$infection_button = $('button#infection-button');
             this.$infection_bottom_input = $('input#infection-bottom-input');
             this.$infection_bottom_button = $('button#infection-bottom-button');
+            this.$infection_discard_remove_input = $('input#infection-discard-remove-input');
+            this.$infection_discard_remove_button = $('button#infection-discard-remove-button');
 
             this.$player_deck_ui = $('div#player-deck-ui');
             this.$infection_draw_known_ui = $('div#infection-draw-known-ui');
@@ -78,6 +101,10 @@
             }, this));
             this.$infection_bottom_button.click($.proxy(function(event) {
                 this.handleInfectionBottom(event);
+                this.updateUi();
+            }, this));
+            this.$infection_discard_remove_button.click($.proxy(function(event) {
+                this.handleInfectionDiscardRemove(event);
                 this.updateUi();
             }, this));
         },
@@ -138,9 +165,20 @@
             }
         },
 
+        handleInfectionDiscardRemove: function(event) {
+            var infection_card = this.$infection_discard_remove_input.val();
+            var infection_discard_index = this.infection_discard.indexOf(infection_card);
+            if (infection_discard_index == -1) {
+                alert("invalid card: " + infection_card);
+                return;
+            }
+            this.infection_discard.splice(infection_discard_index, 1);
+        },
+
         updateUi: function() {
             this.$infection_input.val("");
             this.$infection_bottom_input.val("");
+            this.$infection_discard_remove_input.val("");
 
             this.$player_deck_ui.text(this.player_deck_pile_sizes.toString());
 
