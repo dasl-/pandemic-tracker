@@ -2,13 +2,13 @@
     var PandemicPage = {
 
         // TODO: fill these in
-        num_remaining_player_cards: 38, // number before adding epidemic cards to the piles
+        num_remaining_player_cards: 43, // number before adding epidemic cards to the piles
+        num_epidemics: 7,
         infection_rate_index: 0,
         infection_rate_track: [2,2,2,3,3,4,4,5],
         infection_draw_unknown: [
             "istanbul",
             "istanbul",
-            "istanbul",
             "cairo",
             "cairo",
             "cairo",
@@ -33,6 +33,16 @@
             "new york",
             "new york",
             "new york",
+            "chicago",
+            "chicago",
+            "san francisco",
+            "san francisco",
+            "denver",
+            "denver",
+            "los angeles",
+            "buenos aires",
+            "buenos aires",
+            "atlanta",
         ],
 
 
@@ -72,14 +82,14 @@
             this.$infection_discard_ui = $('div#infection-discard-ui');
 
             this.bindEvents();
-            var min_player_card_pile_size = Math.floor(this.num_remaining_player_cards / 5);
-            var num_bigger_piles = this.num_remaining_player_cards % 5;
+            var min_player_card_pile_size = Math.floor(this.num_remaining_player_cards / this.num_epidemics);
+            var num_bigger_piles = this.num_remaining_player_cards % this.num_epidemics;
             for (var i = 0; i < num_bigger_piles; i++) {
                 this.player_deck_pile_sizes[i] = min_player_card_pile_size +
                     1 + // add the remainder card
                     1;  // add the epidemic card
             }
-            for (var j = num_bigger_piles; j < 5; j++) {
+            for (var j = num_bigger_piles; j < this.num_epidemics; j++) {
                 this.player_deck_pile_sizes[j] = min_player_card_pile_size +
                     1; // add the epidemic card
             }
@@ -112,7 +122,7 @@
         handleInfection: function(event) {
             var infection_card = this.$infection_input.val();
             if (this.infection_draw_known.length > 0) {
-                var infection_draw_known_index = this.infection_draw_known.indexOf(infection_card);
+                var infection_draw_known_index = this.infection_draw_known.lastIndexOf(infection_card);
                 if (infection_draw_known_index == -1) {
                     alert("invalid card for known infection cards: " + infection_card);
                     return;
@@ -157,7 +167,7 @@
         },
 
         handlePlayerDraw: function(event) {
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < this.num_epidemics; i++) {
                 if (this.player_deck_pile_sizes[i] > 0) {
                     this.player_deck_pile_sizes[i]--;
                     break;
