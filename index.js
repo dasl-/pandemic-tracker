@@ -2,50 +2,82 @@
     var PandemicPage = {
 
         // TODO: fill these in
-        num_remaining_player_cards: 43, // number before adding epidemic cards to the piles
-        num_epidemics: 7,
+        num_remaining_player_cards: 74, // number before adding epidemic cards to the piles
+        num_epidemics: 10,
         infection_rate_index: 0,
         infection_rate_track: [2,2,2,3,3,4,4,5],
         infection_draw_unknown: [
-            "istanbul",
-            "istanbul",
-            "cairo",
+            // "cairo", box6
             "cairo",
             "cairo",
             "tripoli",
-            "tripoli",
-            "tripoli",
-            "sao paulo",
-            "sao paulo",
-            "sao paulo",
             "jacksonville",
             "jacksonville",
-            "jacksonville",
-            "lagos",
-            "lagos",
-            "lagos",
-            "london",
-            "london",
-            "london",
-            "washington",
-            "washington",
-            "washington",
+            // "lagos", box6
+            "lagos", // well-stocked
+            "lagos", // rebirth
+            "washington", // rebirth
             "new york",
             "new york",
-            "new york",
-            "chicago",
-            "chicago",
-            "san francisco",
-            "san francisco",
-            "denver",
-            "denver",
-            "los angeles",
-            "buenos aires",
-            "buenos aires",
+            "paris",
+            "paris",
+            "dar es salaam",
+            // "dar es salaam", kim k'd
+            "mexico city", // well-stocked
+            "baghdad",
+            "baghdad",
+            "kinshasa",
+            "khartoum",
             "atlanta",
+            "chicago",
+            "antananarivo",
+            "antananarivo",
+            // "johannesburg", box6
+            // "johannesburg", kim k'd
+            // "kolkata", box 6
+            "san francisco",
+            // "san francisco", box6
+            // "bogota", fallen
+            // "jakarta", box6
+            // "bogota", box6
+            // "sao paulo", box6
+            // "sao paulo", box6
+            "bangkok",
+            "ho chi minh city",
+            // "manila", box6
+            "new mumbai",
+            "new mumbai",
+            "hong kong",
+            "shanghai",
+            // "utopia", box6
+            // "utopia", box6
+            // "utopia", box6
+            "utopia",
+            "utopia",
+            "utopia",
+            "utopia",
+            "utopia",
+            "osaka",
+            "seoul",
+            // "sao paulo", box6
+            // "tripoli", box6
+            // "tripoli", box6
+            // "washington", box6
+            // "washington", box6
+            // "london", box6
+            // "london", box6
+            // "london", box6
+            // "chicago", box6
+            // "new york", box6
+            // "buenos aires", box6
+            // "buenos aires", box6
+            // "istanbul", box6
+            // "istanbul", box6
+            // "jacksonville", box6
+            // "denver", forsaken
+            // "denver", forsaken
+            // "lima", fallen
         ],
-
-
 
         infection_draw_known: [],
         infection_discard: [],
@@ -57,8 +89,12 @@
         $infection_button: null,
         $infection_bottom_input: null,
         $infection_bottom_button: null,
-        $infection_discard_remove_input: null,
-        $infection_discard_remove_button: null,
+        $infection_discard_modify_input: null,
+        $infection_discard_modify_button: null,
+        $infection_draw_known_modify_input: null,
+        $infection_draw_known_modify_button: null,
+        $infection_draw_unknown_modify_input: null,
+        $infection_draw_unknown_modify_button: null,
 
         $player_deck_ui: null,
         $infection_draw_known_ui: null,
@@ -73,8 +109,12 @@
             this.$infection_button = $('button#infection-button');
             this.$infection_bottom_input = $('input#infection-bottom-input');
             this.$infection_bottom_button = $('button#infection-bottom-button');
-            this.$infection_discard_remove_input = $('input#infection-discard-remove-input');
-            this.$infection_discard_remove_button = $('button#infection-discard-remove-button');
+            this.$infection_discard_modify_input = $('input#infection-discard-modify-input');
+            this.$infection_discard_modify_button = $('button#infection-discard-modify-button');
+            this.$infection_draw_known_modify_input = $('input#infection-draw-known-modify-input');
+            this.$infection_draw_known_modify_button = $('button#infection-draw-known-modify-button');
+            this.$infection_draw_unknown_modify_input = $('input#infection-draw-unknown-modify-input');
+            this.$infection_draw_unknown_modify_button = $('button#infection-draw-unknown-modify-button');
 
             this.$player_deck_ui = $('div#player-deck-ui');
             this.$infection_draw_known_ui = $('div#infection-draw-known-ui');
@@ -113,8 +153,16 @@
                 this.handleInfectionBottom(event);
                 this.updateUi();
             }, this));
-            this.$infection_discard_remove_button.click($.proxy(function(event) {
-                this.handleInfectionDiscardRemove(event);
+            this.$infection_discard_modify_button.click($.proxy(function(event) {
+                this.handleInfectionDiscardModify(event);
+                this.updateUi();
+            }, this));
+            this.$infection_draw_known_modify_button.click($.proxy(function(event) {
+                this.handleInfectionDrawKnownModify(event);
+                this.updateUi();
+            }, this));
+            this.$infection_draw_unknown_modify_button.click($.proxy(function(event) {
+                this.handleInfectionDrawUnknownModify(event);
                 this.updateUi();
             }, this));
         },
@@ -175,20 +223,87 @@
             }
         },
 
-        handleInfectionDiscardRemove: function(event) {
-            var infection_card = this.$infection_discard_remove_input.val();
-            var infection_discard_index = this.infection_discard.indexOf(infection_card);
-            if (infection_discard_index == -1) {
-                alert("invalid card: " + infection_card);
+        handleInfectionDiscardModify: function(event) {
+            var first_char = this.$infection_discard_modify_input.val().charAt(0);
+            var is_add = true;
+            if (first_char == "+") {
+                is_add = true;
+            } else if (first_char == "-") {
+                is_add = false;
+            } else {
+                alert("first char must be + or -");
                 return;
             }
-            this.infection_discard.splice(infection_discard_index, 1);
+
+            var infection_card = this.$infection_discard_modify_input.val().substr(1);
+            if (is_add) {
+                this.infection_discard.push(infection_card);
+            } else {
+                var infection_discard_index = this.infection_discard.indexOf(infection_card);
+                if (infection_discard_index == -1) {
+                    alert("invalid card: " + infection_card);
+                    return;
+                }
+                this.infection_discard.splice(infection_discard_index, 1);
+            }
+        },
+
+        handleInfectionDrawKnownModify: function(event) {
+            var first_char = this.$infection_draw_known_modify_input.val().charAt(0);
+            var is_add = true;
+            if (first_char == "+") {
+                is_add = true;
+            } else if (first_char == "-") {
+                is_add = false;
+            } else {
+                alert("first char must be + or -");
+                return;
+            }
+
+            var infection_card = this.$infection_draw_known_modify_input.val().substr(1);
+            if (is_add) {
+                this.infection_draw_known.push(infection_card);
+            } else {
+                var infection_draw_known_index = this.infection_draw_known.indexOf(infection_card);
+                if (infection_draw_known_index == -1) {
+                    alert("invalid card: " + infection_card);
+                    return;
+                }
+                this.infection_draw_known.splice(infection_draw_known_index, 1);
+            }
+        },
+
+        handleInfectionDrawUnknownModify: function(event) {
+            var first_char = this.$infection_draw_unknown_modify_input.val().charAt(0);
+            var is_add = true;
+            if (first_char == "+") {
+                is_add = true;
+            } else if (first_char == "-") {
+                is_add = false;
+            } else {
+                alert("first char must be + or -");
+                return;
+            }
+
+            var infection_card = this.$infection_draw_unknown_modify_input.val().substr(1);
+            if (is_add) {
+                this.infection_draw_unknown.push(infection_card);
+            } else {
+                var infection_draw_unknown_index = this.infection_draw_unknown.indexOf(infection_card);
+                if (infection_draw_unknown_index == -1) {
+                    alert("invalid card: " + infection_card);
+                    return;
+                }
+                this.infection_draw_unknown.splice(infection_draw_unknown_index, 1);
+            }
         },
 
         updateUi: function() {
             this.$infection_input.val("");
             this.$infection_bottom_input.val("");
-            this.$infection_discard_remove_input.val("");
+            this.$infection_discard_modify_input.val("");
+            this.$infection_draw_known_modify_input.val("");
+            this.$infection_draw_unknown_modify_input.val("");
 
             this.$player_deck_ui.text(this.player_deck_pile_sizes.toString());
 
